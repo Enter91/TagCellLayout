@@ -121,11 +121,8 @@ public class TagCellLayout: UICollectionViewLayout {
 	}
 	
 	override public func collectionViewContentSize() -> CGSize {
-		if let
-			heightPerLine = delegate?.tagCellLayoutTagFixHeight(self),
-			width = collectionView?.frame.size.width
-		{
-			let height = heightPerLine*CGFloat(lineNumber)
+		if let _ = delegate?.tagCellLayoutTagFixHeight(self), let width = collectionView?.frame.size.width, layoutInfoList.count > 0, let lastTag = layoutInfoList.last {
+			let height = lastTag.layoutAttribute.frame.origin.y + lastTag.layoutAttribute.frame.height
 			return CGSize(width: width, height: height)
 		}
 		return CGSize.zero
