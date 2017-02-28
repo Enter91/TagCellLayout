@@ -12,6 +12,7 @@ import UIKit
 public protocol TagCellLayoutDelegate: NSObjectProtocol {
 	func tagCellLayoutTagWidth(layout: TagCellLayout, atIndex index:Int) -> CGFloat
 	func tagCellLayoutTagFixHeight(layout: TagCellLayout) -> CGFloat
+	func collectionViewWidth() -> CGFloat
 }
 
 public enum TagAlignmentType: Int {
@@ -69,10 +70,6 @@ public class TagCellLayout: UICollectionViewLayout {
 	
 	var tagsCount: Int {
 		return collectionView?.numberOfItemsInSection(0) ?? 0
-	}
-	
-	var collectionViewWidth: CGFloat {
-		return collectionView?.frame.size.width ?? 0
 	}
 	
 	var isLastRow: Bool {
@@ -209,7 +206,10 @@ private extension TagCellLayout {
 	}
 	
 	func shouldMoveTagToNextRow(tagWidth: CGFloat) -> Bool {
-		return ((currentTagPosition.x + tagWidth) > collectionViewWidth)
+		if let delegate = delegate {
+			return ((currentTagPosition.x + tagWidth) > delegate.collectionViewWidth())
+		}
+		return false
 	}
 	
 	func layoutAttribute(tagIndex: Int, tagFrame: CGRect) -> UICollectionViewLayoutAttributes {
@@ -238,9 +238,12 @@ private extension TagCellLayout {
 	}
 	
 	func calculateWhiteSpace(tagIndex: Int) -> CGFloat {
-		let tagFrame = tagFrameForIndex(tagIndex)
-		let whiteSpace = collectionViewWidth - (tagFrame.origin.x + tagFrame.size.width)
-		return whiteSpace
+		if let delegate = delegate {
+			let tagFrame = tagFrameForIndex(tagIndex)
+			let whiteSpace = delegate.collectionViewWidth() - (tagFrame.origin.x + tagFrame.size.width)
+			return whiteSpace
+		}
+		return 0
 	}
 	
 	func insertWhiteSpace(tagIndex: Int, whiteSpace: CGFloat) {
